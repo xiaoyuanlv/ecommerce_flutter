@@ -1,9 +1,11 @@
 import 'package:ecommerce_flutter/constant.dart';
+import 'package:ecommerce_flutter/services/firebase_services.dart';
 import 'package:ecommerce_flutter/tabs/home_tab.dart';
 import 'package:ecommerce_flutter/tabs/saved_tab.dart';
 import 'package:ecommerce_flutter/tabs/search_tab.dart';
 import 'package:ecommerce_flutter/widgets/bottom_tabs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  FirebaseServices _firebaseServices = FirebaseServices();
 
   PageController _tabPageController;
   int _selectedTab = 0;
