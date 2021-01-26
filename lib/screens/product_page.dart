@@ -4,7 +4,7 @@ import 'package:ecommerce_flutter/services/firebase_services.dart';
 import 'package:ecommerce_flutter/widgets/custom_action_bar.dart';
 import 'package:ecommerce_flutter/widgets/image_swipe.dart';
 import 'package:ecommerce_flutter/widgets/product_size.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class ProductPage extends StatefulWidget {
@@ -16,45 +16,34 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
+
   FirebaseServices _firebaseServices = FirebaseServices();
 
-
-  String _selectedProductSize = "0";
-
-  Future _addToCart() {
-    return _firebaseServices.userRef
-        .doc(_firebaseServices.getUserId())
-        .collection("Cart")
-        .doc(widget.productId)
-        .set({ "size": _selectedProductSize });
-  }
-  
-  final SnackBar _snackBar = SnackBar(content: Text("Product added to the cart"));
+  final snackBar = SnackBar(content: Text('Product added to Cart!'));
+  final snackBarSaved = SnackBar(content: Text('Product saved!'));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          FutureBuilder(
-              future: _firebaseServices.productRef.doc(widget.productId).get(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Scaffold(
-                    body: Center(
-                      child: Text("Error: ${snapshot.error}"),
-                    ),
-                  );
-                }
+        body: Stack(
+          children: [
+            FutureBuilder(
+                future: _firebaseServices.productRef.doc(widget.productId).get(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Scaffold(
+                      body: Center(
+                        child: Text("Error: ${snapshot.error}"),
+                      ),
+                    );
+                  }
 
-                if(snapshot.connectionState == ConnectionState.done) {
+                  if(snapshot.connectionState == ConnectionState.done) {
                     Map<String, dynamic> documentData = snapshot.data.data();
 
                     List imageList = documentData['images'];
                     List productSizes = documentData['size'];
-
-                    // Set an initial size
-                    _selectedProductSize = productSizes[0];
+                    String selectedSize = productSizes[0];
 
                     return ListView(
                       padding: EdgeInsets.all(0),
@@ -62,10 +51,10 @@ class _ProductPageState extends State<ProductPage> {
                         ImageSwipe(imageList: imageList),
                         Padding(
                           padding: const EdgeInsets.only(
-                            top: 24.0,
-                            left: 24.0,
-                            right: 24.0,
-                            bottom: 4.0
+                              top: 24.0,
+                              left: 24.0,
+                              right: 24.0,
+                              bottom: 4.0
                           ),
                           child: Text("${documentData['name']}", style: Constants.boldHeading),
                         ),
@@ -76,8 +65,8 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                           child: Text("\$${documentData['price']}",
                               style: TextStyle(
-                              fontSize: 18.0,
-                              color: Theme.of(context).accentColor,
+                                  fontSize: 18.0,
+                                  color: Theme.of(context).accentColor,
                                   fontWeight: FontWeight.w600)),
                         ),
                         Padding(
@@ -87,8 +76,8 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                           child: Text(
                             "${documentData['desc']}",
-                              style: TextStyle(
-                                  fontSize: 16.0),
+                            style: TextStyle(
+                                fontSize: 16.0),
                           ),
                         ),
                         Padding(
@@ -97,58 +86,72 @@ class _ProductPageState extends State<ProductPage> {
                               horizontal: 24.0
                           ),
                           child: Text(
-                              "Select Size",
-                              style: Constants.regularDarkText,
+                            "Select Size",
+                            style: Constants.regularDarkText,
                           ),
                         ),
                         ProductSize(productSizes: productSizes, onSelected: (size) {
-                            _selectedProductSize = size;
+                          selectedSize = size;
                         }),
                         Padding(
                           padding: const EdgeInsets.all(24.0),
                           child: Row(
                             children: [
-                              Container(
-                                child: Image(
-                                  image: AssetImage(
+                              GestureDetector(
+                                onTap: () {
+                                  _firebaseServices.userRef
+                                      .doc(_firebaseServices.getUserId())
+                                      .collection("Saved").doc(widget.productId).set({
+                                  "size" : selectedSize
+                                  });
+                                  Scaffold.of(context).showSnackBar(snackBarSaved);
+                               },
+                                child: Container(
+                                  child: Image(
+                                    image: AssetImage(
                                       "assets/images/tab_saved.png",
+                                    ),
+                                    height: 22.0,
                                   ),
-                                  height: 22.0,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xFFDCDCDC),
+                                      borderRadius: BorderRadius.circular(12.0)
+                                  ),
+                                  alignment: Alignment.center,
+                                  width: 60.0,
+                                  height: 60.0,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFDCDCDC),
-                                  borderRadius: BorderRadius.circular(12.0)
-                                ),
-                                alignment: Alignment.center,
-                                width: 60.0,
-                                height: 60.0,
                               ),
                               Expanded(
                                 child: GestureDetector(
+                                  onTap: () {
+                                    _firebaseServices.userRef
+                                        .doc(_firebaseServices.getUserId())
+                                        .collection("Cart").doc(widget.productId).set({
+                                          "size" : selectedSize
+                                        });
+                                    Scaffold.of(context).showSnackBar(snackBar);
+                                  },
                                   child: Container(
                                     child: Text(
-                                        "Add to Cart",
+                                      "Add to Cart",
                                       style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.w600
+                                          color: Colors.white,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w600
                                       ),
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.circular(12.0)
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.circular(12.0)
                                     ),
                                     alignment: Alignment.center,
                                     height: 65.0,
                                     width: double.infinity,
                                     margin: EdgeInsets.only(
-                                      left: 16.0
+                                        left: 16.0
                                     ),
                                   ),
-                                  onTap: () async {
-                                    await _addToCart();
-                                    Scaffold.of(context).showSnackBar(_snackBar);
-                                  },
                                 ),
                               )
                             ],
@@ -158,22 +161,22 @@ class _ProductPageState extends State<ProductPage> {
                         )
                       ],
                     );
-                }
+                  }
 
-                return Scaffold(
-                  body: Center(
-                      child: CircularProgressIndicator()
-                  ),
-                );
-              }
-          ),
-          CustomActionBar(
-            hasBackArrow: true,
-            hasTitle: false,
-            hasBackground: false,
-          )
-        ],
-      )
+                  return Scaffold(
+                    body: Center(
+                        child: CircularProgressIndicator()
+                    ),
+                  );
+                }
+            ),
+            CustomActionBar(
+              hasBackArrow: true,
+              hasTitle: false,
+              hasBackground: false,
+            )
+          ],
+        )
     );
   }
 }

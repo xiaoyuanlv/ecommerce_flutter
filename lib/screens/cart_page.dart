@@ -5,12 +5,12 @@ import 'package:ecommerce_flutter/services/firebase_services.dart';
 import 'package:ecommerce_flutter/widgets/custom_action_bar.dart';
 import 'package:flutter/material.dart';
 
-class SavedTab extends StatefulWidget {
+class CartPage extends StatefulWidget {
   @override
-  _SavedTabState createState() => _SavedTabState();
+  _CartPageState createState() => _CartPageState();
 }
 
-class _SavedTabState extends State<SavedTab> {
+class _CartPageState extends State<CartPage> {
 
   FirebaseServices _firebaseServices = FirebaseServices();
 
@@ -22,7 +22,7 @@ class _SavedTabState extends State<SavedTab> {
           FutureBuilder<QuerySnapshot>(
             future: _firebaseServices.userRef
                 .doc(_firebaseServices.getUserId())
-                .collection("Saved").get(),
+                .collection("Cart").get(),
             builder: (context, snapshot) {
               if(snapshot.hasError) {
                 return Scaffold(
@@ -86,7 +86,7 @@ class _SavedTabState extends State<SavedTab> {
                                   ),
                                   Container(
                                     padding: EdgeInsets.only(
-                                        left: 16.0
+                                      left: 16.0
                                     ),
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.start,
@@ -95,28 +95,28 @@ class _SavedTabState extends State<SavedTab> {
                                         Text(
                                           "${_productMap['name']}",
                                           style: TextStyle(
-                                              fontSize: 18.0,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w600
+                                            fontSize: 18.0,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w600
                                           ),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 4.0
+                                            vertical: 4.0
                                           ),
                                           child: Text(
                                             "\$${_productMap['price']}",
                                             style: TextStyle(
-                                                fontSize: 16.0,
-                                                color: Theme.of(context).accentColor,
-                                                fontWeight: FontWeight.w600
+                                              fontSize: 16.0,
+                                              color: Theme.of(context).accentColor,
+                                              fontWeight: FontWeight.w600
                                             ),
                                           ),
                                         ),
                                         Text(
                                           "Size  - ${document.data()['size']}",
                                           style: TextStyle(
-                                              fontSize: 16.0
+                                            fontSize: 16.0
                                           ),
                                         )
                                       ],
@@ -153,9 +153,9 @@ class _SavedTabState extends State<SavedTab> {
           ),
 
           CustomActionBar(
-            hasBackArrow: false,
+            hasBackArrow: true,
             hasTitle: true,
-            title: "Saved",
+            title: "Cart",
           )
         ],
       ),

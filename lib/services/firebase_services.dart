@@ -10,6 +10,7 @@ class FirebaseServices {
 
   final CollectionReference userRef = FirebaseFirestore.instance.collection("Users");
 
+
   String getUserId() {
     return _firebaseAuth.currentUser.uid;
   }
